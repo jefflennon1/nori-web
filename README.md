@@ -1,125 +1,124 @@
-# Nori Frontend
+# Nori Web
 
-Front-end único em React que consome os dois backends do **Nori Portfolio**
-(`nori-sales` e `nori-stock`), com telas adaptadas por perfil de usuário
-(BUYER, ADMIN do sales, OPERATOR/ADMIN do stock).
+Frontend application for the **Nori** ecosystem, a sales and inventory management platform built to demonstrate a full-stack architecture based on microservices.
 
-## Stack
+The application provides dedicated interfaces for buyers, sales administrators, and stock operators, independently consuming the `nori-sales` and `nori-stock` APIs.
 
-- Vite + React + TypeScript
-- Tailwind CSS v4
-- TanStack React Query (cache/estado de servidor) + Axios
-- Zustand (auth + carrinho, com persistência em localStorage)
-- React Router v7
-- lucide-react (ícones)
+## Overview
 
-## Como rodar
+Nori Web centralizes the user experience across the platform's two main domains:
 
-```bash
-npm install
-cp .env.example .env   # ajuste as URLs se necessário
-npm run dev
+* **Sales:** product catalog, shopping cart, orders, Pix payments, and sales administration.
+* **Inventory:** products, categories, storage sectors, stock movements, and inventory monitoring.
+
+Navigation, permissions, and available features are adapted according to the authenticated user's role:
+
+| Service      | Roles               |
+| ------------ | ------------------- |
+| `nori-sales` | `BUYER`, `ADMIN`    |
+| `nori-stock` | `OPERATOR`, `ADMIN` |
+
+## Tech Stack
+
+* React
+* TypeScript
+* Vite
+* Tailwind CSS v4
+* React Router v7
+* TanStack React Query
+* Axios
+* Zustand
+* Lucide React
+* jwt-decode
+
+## Architecture
+
+The frontend communicates with two independent services:
+
+```text
+                         ┌─────────────────┐
+                         │    Nori Web     │
+                         │ React + Vite    │
+                         └────────┬────────┘
+                                  │
+                   ┌──────────────┴──────────────┐
+                   │                             │
+                   ▼                             ▼
+          ┌─────────────────┐           ┌─────────────────┐
+          │   nori-sales    │           │   nori-stock    │
+          │ Sales API       │           │ Stock API       │
+          └─────────────────┘           └─────────────────┘
 ```
 
-Acesse `http://localhost:5173`.
+Each service has:
 
-## ⚠️ Pré-requisito nos backends: configurar CORS
+* independent authentication;
+* its own JWT;
+* a dedicated Axios client;
+* separate authentication state;
+* role-specific access rules.
 
-Hoje nenhum dos dois projetos (`SecurityConfigurations` no nori-sales,
-`SecurityConfig` no nori-stock) tem configuração de CORS. Sem isso, o browser
-vai bloquear todas as chamadas do front (`localhost:5173`) para as APIs
-(`localhost:8081` / `8082`) com erro de CORS no console.
+This separation allows users to maintain active sessions in both application contexts at the same time.
 
-Adicione um bean `CorsConfigurationSource` e registre no `.cors()` da
-`SecurityFilterChain` de cada projeto. Exemplo:
+## Features
 
-```java
-@Bean
-public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("http://localhost:5173"));
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(List.of("*"));
-    config.setAllowCredentials(true);
+### Buyer Area
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", config);
-    return source;
-}
-```
+* user authentication and registration;
+* product catalog;
+* product pagination;
+* shopping cart;
+* order creation;
+* order status tracking;
+* Pix payment generation and display;
+* purchase history.
 
-E no `SecurityFilterChain`, antes do `.authorizeHttpRequests`:
+### Sales Administration
 
-```java
-.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-```
+* sales dashboard;
+* product management;
+* category management;
+* order monitoring;
+* operational store information.
 
-## Como o app decide qual backend chamar
+### Inventory Management
 
-- Login tem duas abas: **"Vendas / Loja"** (chama `/auth/login` do
-  `nori-sales`) e **"Estoque"** (chama `/auth/login` do `nori-stock`).
-- O JWT retornado é decodificado no front (`jwt-decode`) para extrair `role`
-  e definir as rotas/menu visíveis.
-- Cada workspace usa seu próprio Axios client (`src/api/salesClient.ts` e
-  `src/api/stockClient.ts`), com seu próprio token — você pode, inclusive,
-  estar logado nos dois ao mesmo tempo (tokens ficam em chaves separadas
-  no localStorage).
+* inventory dashboard;
+* product management;
+* category management;
+* storage sector management;
+* stock inbound and outbound operations;
+* stock adjustments;
+* stock movement history.
 
-## Endpoints que ainda não existem no nori-stock (fallback automático)
+## State Management
 
-O `nori-stock` hoje só tem `AuthController` implementado. Os módulos de
-Categoria, Setor, Produto e Movimentação de estoque no front (`src/api/stockApi.ts`)
-tentam chamar o endpoint real e, se a chamada falhar (404, erro de rede etc.),
-caem automaticamente para dados mock (`src/api/stockMockData.ts`) — assim a
-tela funciona para demonstração mesmo antes de você terminar os controllers.
+The application separates server state from local client state.
 
-**Quando você implementar os controllers reais, não precisa mudar nada no
-front** — assim que o endpoint responder, o fallback simplesmente para de
-ser usado. Convenção de rotas REST assumida (ajuste em `stockApi.ts` se
-você nomear diferente):
+### TanStack React Query
 
-| Recurso | Métodos esperados |
-|---|---|
-| `/categories` | `GET`, `POST` |
-| `/sectors` | `GET`, `POST` |
-| `/products` | `GET`, `POST`, `PUT /products/{id}` |
-| `/stock-movements` | `GET`, `POST` |
+Used for:
 
-## ⚠️ Bug encontrado entre os dois backends (Kafka)
+* API consumption and caching;
+* loading and error handling;
+* pagination;
+* query invalidation;
+* synchronization after mutations;
+* remote data updates.
 
-O `nori-stock` publica o evento de atualização de estoque no tópico
-**`"inventory-updated"`** (`StockUpdatedProducerService`), mas o consumer
-stub no `nori-sales` (`StockListenerService`, hoje comentado) está escutando
-**`"stock-updated"`**. Os nomes precisam ser iguais nos dois lados antes de
-ativar o consumer.
+### Zustand
 
-## Limitação conhecida: `GET /orders` no nori-sales
+Used for:
 
-O endpoint atual de pedidos extrai o usuário do `SecurityContextHolder` e
-retorna só os pedidos do usuário logado — não existe ainda um endpoint
-"admin: listar todos os pedidos". A tela `sales-admin/orders` está pronta
-no front, mas vai mostrar a mesma lista do buyer até esse endpoint existir.
+* authentication sessions;
+* JWT storage;
+* authenticated role identification;
+* shopping cart state;
+* local persistence.
 
-## Estrutura
+## Authentication
 
-```
-src/
-  api/        # clients axios + funções de chamada por domínio
-  components/ # UI (Button, Card, Modal...) + layout (AppShell, navConfig) + auth (ProtectedRoute)
-  hooks/      # React Query hooks (useSales.ts, useStock.ts)
-  pages/
-    auth/     # Login
-    buyer/    # Catálogo, Carrinho, Pedidos, Detalhe do pedido (Pix)
-    sales/    # Dashboard, Produtos, Categorias, Pedidos (admin da loja)
-    stock/    # Dashboard, Produtos, Categorias, Setores, Movimentações
-  store/      # Zustand: authStore (JWT dos 2 serviços), cartStore
-  types/      # Tipos espelhando os DTOs reais dos backends
-```
+The login page allows users to select the application context:
 
-## Usuários de teste
-
-- **nori-sales**: usuário criado via `/auth/register`, ou direto no banco
-  (lembre que o seed V7 tinha placeholders de hash — gere um BCrypt real).
-- **nori-stock**: `nori_admin` / `admin1234` ou `operator_demo` / `demo1234`
-  (seed `V6__insert_seed_data.sql`). **Não** use o usuário `system` — ele é
-  bloqueado para login real.
+* **Sales / Store:** authentication through `nori-sales`;
+* **Inventory:** authentication through `nori-stock`.
