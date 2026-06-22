@@ -2,9 +2,10 @@ import { salesApi } from './salesClient';
 import type {
   CategorySalesDTO,
   OrderRequestDTO,
-  OrderResponseDTO,
+  OrderResponseDTO, 
   PaymentResponseDTO,
   ProductSalesDTO,
+  PageResponse,
 } from '@/types';
 
 export const salesAuthApi = {
@@ -45,10 +46,10 @@ export const productsSalesApi = {
 };
 
 export const ordersApi = {
-  myOrders: () => salesApi.get<OrderResponseDTO[]>('/orders').then((r) => r.data),
+  myOrders: () => salesApi.get<PageResponse<OrderResponseDTO>>('/orders/my-orders').then((r) => r.data),
   create: (payload: OrderRequestDTO) =>
     salesApi.post<OrderResponseDTO>('/orders', payload).then((r) => r.data),
-  get: (id: string) => salesApi.get<OrderResponseDTO>(`/orders/${id}`).then((r) => r.data),
+  get: (id: string) => salesApi.get<PageResponse<OrderResponseDTO>>(`/orders/${id}`).then((r) => r.data),
 };
 
 export const paymentsApi = {

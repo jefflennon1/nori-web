@@ -9,6 +9,7 @@ export const salesApi = axios.create({
 });
 
 salesApi.interceptors.request.use((config) => {
+   if (config.url?.startsWith('/auth')) return config;
   const token = useAuthStore.getState().salesToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

@@ -28,7 +28,7 @@ export default function OrdersPage() {
 
   if (isLoading) return <FullPageSpinner />;
 
-  if (!data || data.length === 0) {
+  if (!data?.content || data.content.length === 0) {
     return <EmptyState icon={Receipt} title={t.buyer.orders.empty} />;
   }
 
@@ -39,7 +39,7 @@ export default function OrdersPage() {
       </header>
 
       <div className="space-y-3">
-        {data.map((order) => (
+        {data.content.map((order) => (
           <Card
             key={order.id}
             className="cursor-pointer hover:border-accent/40 transition-colors"

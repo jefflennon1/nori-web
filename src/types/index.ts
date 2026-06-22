@@ -41,6 +41,18 @@ export interface ResponseUserDTO {
 export type OrderStatus = 'PENDING_PAYMENT' | 'PAYMENT_CONFIRMED' | 'CANCELLED';
 export type PaymentStatus = 'PENDING' | 'APPROVED' | 'DECLINED' | 'EXPIRED';
 
+export interface PageResponse<T> {
+  content: T[];
+  empty: boolean;
+  first: boolean;
+  last: boolean;
+  number: number;
+  numberOfElements: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 export interface OrderItemDTO {
   product: ProductSalesDTO;
   quantity: number;

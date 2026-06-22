@@ -37,10 +37,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, next);
     setLocaleState(next);
   }
-
-  // Evita o "flash" de um idioma errado enquanto a geo-IP resolve — como a
-  // tela de login é a primeira coisa renderizada, um spinner rápido aqui
-  // não compromete a UX (a detecção costuma resolver em poucas centenas de ms).
+ 
   if (locale === null) {
     return <FullPageSpinner />;
   }
