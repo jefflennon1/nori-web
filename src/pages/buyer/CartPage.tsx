@@ -7,12 +7,14 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatCurrency } from '@/lib/utils';
+import { useLocale } from '@/i18n/LocaleContext';
 
 export default function CartPage() {
   const navigate = useNavigate();
   const { lines, remove, setQuantity, clear, total } = useCartStore();
   const createOrder = useCreateOrder();
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLocale();
 
   async function handleCheckout() {
     setError(null);
@@ -24,7 +26,7 @@ export default function CartPage() {
       navigate(`/buyer/orders/${order.id}`);
     } catch (err) {
       console.error(err);
-      setError('Não foi possível finalizar o pedido. Verifique a disponibilidade dos itens.');
+      setError(t.buyer.cart.checkoutError);
     }
   }
 
@@ -32,11 +34,11 @@ export default function CartPage() {
     return (
       <EmptyState
         icon={ShoppingCart}
-        title="Seu carrinho está vazio"
-        description="Adicione produtos do catálogo para continuar."
+        title={t.buyer.cart.emptyTitle}
+        description={t.buyer.cart.emptyDescription}
         action={
           <Button variant="secondary" onClick={() => navigate('/buyer/catalog')}>
-            Ver catálogo
+           {t.buyer.cart.viewCatalog}
           </Button>
         }
       />
@@ -46,8 +48,8 @@ export default function CartPage() {
   return (
     <div>
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Carrinho</h1>
-        <p className="text-text-dim text-sm mt-1">{lines.length} produto(s)</p>
+        <h1 className="text-2xl font-semibold">{t.buyer.cart.title}</h1>
+        <p className="text-text-dim text-sm mt-1">{t.buyer.cart.itemCount(lines.length)}</p>
       </header>
 
       <div className="space-y-3 mb-6">
@@ -56,7 +58,7 @@ export default function CartPage() {
             <CardBody className="flex items-center gap-4">
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">{line.product.name}</p>
-                <p className="text-sm text-text-dim">{formatCurrency(line.product.price)} / un.</p>
+                <p className="text-sm text-text-dim"> {formatCurrency(line.product.price)} {t.buyer.cart.perUnit}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -94,13 +96,13 @@ export default function CartPage() {
       <Card>
         <CardBody className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-text-dim">Total</p>
+            <p className="text-sm text-text-dim">{t.buyer.cart.total}</p>
             <p className="text-2xl font-semibold">{formatCurrency(total())}</p>
           </div>
           <div className="text-right">
             {error && <p className="text-sm text-danger mb-2">{error}</p>}
             <Button size="lg" loading={createOrder.isPending} onClick={handleCheckout}>
-              Finalizar pedido
+              {t.buyer.cart.checkout}
             </Button>
           </div>
         </CardBody>

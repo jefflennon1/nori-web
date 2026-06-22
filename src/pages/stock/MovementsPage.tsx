@@ -10,6 +10,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { FullPageSpinner } from '@/components/ui/Spinner';
 import { formatDate } from '@/lib/utils';
 import type { MovementType } from '@/types';
+import { useLocale } from '@/i18n/LocaleContext';
+import type { Messages } from '@/i18n/messages.pt';
 
 const typeMeta: Record<
   MovementType,
@@ -19,6 +21,10 @@ const typeMeta: Record<
   OUTBOUND: { tone: 'danger', icon: ArrowUp, label: 'Saída', iconBg: 'bg-danger/10 text-danger' },
   ADJUSTMENT: { tone: 'info', icon: SlidersHorizontal, label: 'Ajuste', iconBg: 'bg-accent-2/10 text-accent-2' },
 };
+
+function movementLabel(t: Messages, type: MovementType) {
+  return t.stock.movements.type[type];
+}
 
 export default function MovementsPage() {
   const { data: movements, isLoading } = useMovements();
@@ -33,6 +39,7 @@ export default function MovementsPage() {
     quantity: '',
     reason: '',
   });
+  const { t } = useLocale();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -53,19 +60,19 @@ export default function MovementsPage() {
     <div>
       <header className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Movimentações</h1>
+          <h1 className="text-2xl font-semibold">{t.stock.movements.title}</h1>
           <p className="text-text-dim text-sm mt-1">
-            Inclui movimentos manuais e automáticos (gerados via Kafka pelo consumer de <code>order-confirmed</code>)
+            {t.stock.movements.subtitleBefore} <code>order-confirmed</code> {t.stock.movements.subtitleAfter}
           </p>
         </div>
         <Button onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4" />
-          Nova movimentação
+           {t.stock.movements.newMovement}
         </Button>
       </header>
 
       {!movements || movements.length === 0 ? (
-        <EmptyState icon={ArrowLeftRight} title="Nenhuma movimentação registrada" />
+        <EmptyState icon={ArrowLeftRight} title={t.stock.movements.empty}  />
       ) : (
         <div className="space-y-2">
           {movements.map((m) => {
@@ -86,7 +93,7 @@ export default function MovementsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge tone={meta.tone}>{meta.label}</Badge>
+                    <Badge tone={meta.tone}>{movementLabel(t, m.type)}</Badge>
                     <span className="font-semibold w-12 text-right">{m.quantity}</span>
                   </div>
                 </CardBody>
@@ -99,9 +106,9 @@ export default function MovementsPage() {
       <Modal open={open} onClose={() => setOpen(false)} title="Nova movimentação">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label>Produto</Label>
+            <Label>{t.stock.movements.fieldProduct}</Label>
             <Select required value={form.productId} onChange={(e) => setForm({ ...form, productId: e.target.value })}>
-              <option value="">Selecione...</option>
+              <option value="">{t.common.select}</option>
               {products?.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
@@ -110,7 +117,7 @@ export default function MovementsPage() {
           <div>
             <Label>Setor</Label>
             <Select required value={form.sectorId} onChange={(e) => setForm({ ...form, sectorId: e.target.value })}>
-              <option value="">Selecione...</option>
+              <option value="">{t.common.select}</option>
               {sectors?.map((s) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
@@ -118,27 +125,27 @@ export default function MovementsPage() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Tipo</Label>
+              <Label>{t.stock.movements.fieldType}</Label>
               <Select
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value as MovementType })}
               >
-                <option value="INBOUND">Entrada</option>
-                <option value="ADJUSTMENT">Ajuste</option>
-                <option value="OUTBOUND">Saída</option>
+                <option value="INBOUND">{t.stock.movements.type.INBOUND}</option>
+                <option value="ADJUSTMENT">{t.stock.movements.type.ADJUSTMENT}</option>
+                <option value="OUTBOUND">{t.stock.movements.type.OUTBOUND}</option>
               </Select>
             </div>
             <div>
-              <Label>Quantidade</Label>
+              <Label>{t.stock.movements.fieldQuantity}</Label>
               <Input type="number" required value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} />
             </div>
           </div>
           <div>
-            <Label>Motivo</Label>
+            <Label>{t.stock.movements.fieldReason}</Label>
             <Input value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
           </div>
           <Button type="submit" className="w-full" loading={createMovement.isPending}>
-            Registrar
+            {t.stock.movements.register}
           </Button>
         </form>
       </Modal>

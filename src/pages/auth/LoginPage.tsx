@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import { salesAuthApi } from '@/api/salesApi';
 import { stockAuthApi } from '@/api/stockApi';
+import { LocaleSwitch } from '@/components/ui/LocaleSwitch';
+import { useLocale } from '@/i18n/LocaleContext';
 
 type Workspace = 'sales' | 'stock';
 
@@ -20,6 +22,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { t } = useLocale();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -38,7 +41,7 @@ export default function LoginPage() {
       }
     } catch (err) {
       console.error(err);
-      setError('Usuário ou senha inválidos.');
+      setError(t.login.invalidCredentials);
     } finally {
       setLoading(false);
     }
@@ -47,13 +50,18 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg px-4">
       <div className="w-full max-w-md">
+      <div className="mb-4 flex justify-end">
+          <LocaleSwitch />
+      </div>
+
+
         <div className="mb-8 flex flex-col items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/15 text-accent">
             <Package2 className="h-6 w-6" />
           </div>
           <div className="text-center">
-            <h1 className="text-xl font-semibold">Nori Portfolio</h1>
-            <p className="text-sm text-text-dim">Plataforma de vendas e estoque</p>
+            <h1 className="text-xl font-semibold">{t.login.title}</h1>
+            <p className="text-sm text-text-dim">{t.login.subtitle}</p>
           </div>
         </div>
 
@@ -67,7 +75,7 @@ export default function LoginPage() {
             )}
           >
             <Store className="h-4 w-4" />
-            Vendas / Loja
+            {t.login.tabSales}
           </button>
           <button
             type="button"
@@ -78,24 +86,28 @@ export default function LoginPage() {
             )}
           >
             <Warehouse className="h-4 w-4" />
-            Estoque
+            {t.login.tabStock}
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-border bg-surface p-6">
           <div>
-            <Label htmlFor="username">Usuário</Label>
+            <Label htmlFor="username">{t.login.usernameLabel}</Label>
             <Input
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder={workspace === 'sales' ? 'ex: maria_buyer' : 'ex: operator_demo'}
+              placeholder={
+                workspace === 'sales'
+                  ? t.login.usernamePlaceholderSales
+                  : t.login.usernamePlaceholderStock
+              }
               autoComplete="username"
               required
             />
           </div>
           <div>
-            <Label htmlFor="password">Senha</Label>
+            <Label htmlFor="password">{t.login.passwordLabel}</Label>
             <Input
               id="password"
               type="password"
@@ -115,13 +127,11 @@ export default function LoginPage() {
           )}
 
           <Button type="submit" className="w-full" size="lg" loading={loading}>
-            Entrar
+            {t.login.submit}
           </Button>
 
           <p className="text-center text-xs text-text-dim">
-            {workspace === 'sales'
-              ? 'Compradores e administradores da loja entram por aqui.'
-              : 'Operadores e administradores do estoque entram por aqui.'}
+           {workspace === 'sales' ? t.login.helpSales : t.login.helpStock}
           </p>
         </form>
       </div>

@@ -13,6 +13,7 @@ import { Input, Label, Select } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FullPageSpinner } from '@/components/ui/Spinner';
+import { useLocale } from '@/i18n/LocaleContext';
 
 export default function StockProductsPage() {
   const { data: products, isLoading } = useStockProducts();
@@ -29,6 +30,7 @@ export default function StockProductsPage() {
     quantity: '',
     minQuantity: '',
   });
+   const { t } = useLocale();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,17 +53,17 @@ export default function StockProductsPage() {
     <div>
       <header className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Produtos</h1>
-          <p className="text-text-dim text-sm mt-1">Estoque físico por setor</p>
+          <h1 className="text-2xl font-semibold">{t.stock.products.title}</h1>
+          <p className="text-text-dim text-sm mt-1">{t.stock.products.subtitle}</p>
         </div>
         <Button onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4" />
-          Novo produto
+          {t.stock.products.newProduct}
         </Button>
       </header>
 
       {!products || products.length === 0 ? (
-        <EmptyState icon={Boxes} title="Nenhum produto cadastrado" />
+        <EmptyState icon={Boxes} title={t.stock.products.empty}  />
       ) : (
         <div className="space-y-2">
           {products.map((p) => (
@@ -85,23 +87,23 @@ export default function StockProductsPage() {
       <Modal open={open} onClose={() => setOpen(false)} title="Novo produto">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label>Nome</Label>
+            <Label>{t.common.name}</Label>
             <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Categoria</Label>
+              <Label>{t.salesAdmin.products.fieldCategory}</Label>
               <Select required value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>
-                <option value="">Selecione...</option>
+                <option value="">{t.common.select}</option>
                 {categories?.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </Select>
             </div>
             <div>
-              <Label>Setor</Label>
+              <Label>{t.stock.products.fieldSector}</Label>
               <Select required value={form.sectorId} onChange={(e) => setForm({ ...form, sectorId: e.target.value })}>
-                <option value="">Selecione...</option>
+                <option value="">{t.common.select}</option>
                 {sectors?.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
@@ -109,21 +111,21 @@ export default function StockProductsPage() {
             </div>
           </div>
           <div>
-            <Label>SKU</Label>
+            <Label>{t.stock.products.fieldSku}</Label>
             <Input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Quantidade inicial</Label>
+              <Label>{t.stock.products.fieldInitialQty}</Label>
               <Input type="number" required value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} />
             </div>
             <div>
-              <Label>Qtd. mínima</Label>
+              <Label>{t.stock.products.fieldMinQty}</Label>
               <Input type="number" required value={form.minQuantity} onChange={(e) => setForm({ ...form, minQuantity: e.target.value })} />
             </div>
           </div>
           <Button type="submit" className="w-full" loading={createProduct.isPending}>
-            Salvar
+           {t.common.save}
           </Button>
         </form>
       </Modal>

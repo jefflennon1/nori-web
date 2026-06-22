@@ -3,6 +3,8 @@ import { LogOut, Package2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import type { NavItem } from './navConfig';
+import { useLocale } from '@/i18n/LocaleContext';
+import { LocaleSwitch } from '@/components/ui/LocaleSwitch';
 
 export function AppShell({
   navItems,
@@ -18,6 +20,7 @@ export function AppShell({
   const salesUser = useAuthStore((s) => s.salesUser);
   const stockUser = useAuthStore((s) => s.stockUser);
   const logoutAll = useAuthStore((s) => s.logoutAll);
+  const { t } = useLocale();
 
   const user = activeWorkspace === 'sales' ? salesUser : stockUser;
 
@@ -60,6 +63,7 @@ export function AppShell({
         </nav>
 
         <div className="border-t border-border p-3">
+           <LocaleSwitch className="w-full justify-center" />
           <div className="mb-2 flex items-center gap-2 rounded-lg px-2 py-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-2/15 text-accent-2 text-sm font-semibold">
               {user?.username?.charAt(0).toUpperCase() ?? '?'}
@@ -74,7 +78,7 @@ export function AppShell({
             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-text-dim hover:bg-surface-2 hover:text-danger transition-colors cursor-pointer"
           >
             <LogOut className="h-4 w-4" />
-            Sair
+             {t.common.logout}
           </button>
         </div>
       </aside>

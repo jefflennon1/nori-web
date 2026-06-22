@@ -20,15 +20,17 @@ import StockProductsPage from '@/pages/stock/StockProductsPage';
 import StockCategoriesPage from '@/pages/stock/StockCategoriesPage';
 import SectorsPage from '@/pages/stock/SectorsPage';
 import MovementsPage from '@/pages/stock/MovementsPage';
+import { useLocale } from '@/i18n/LocaleContext';
 
 export default function App() {
+  const { t } = useLocale();
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
 
       {/* Buyer workspace (nori-sales, role BUYER) */}
       <Route element={<ProtectedRoute workspace="sales" allowedRoles={['BUYER']} />}>
-        <Route element={<AppShell navItems={buyerNav} workspaceLabel="Loja" accentLabel="Comprador" />}>
+        <Route element={<AppShell navItems={buyerNav} workspaceLabel={t.shell.workspaceStore} accentLabel={t.shell.accentBuyer} />}>
           <Route path="/buyer/catalog" element={<CatalogPage />} />
           <Route path="/buyer/cart" element={<CartPage />} />
           <Route path="/buyer/orders" element={<OrdersPage />} />
@@ -38,7 +40,7 @@ export default function App() {
 
       {/* Sales admin workspace (nori-sales, role ADMIN) */}
       <Route element={<ProtectedRoute workspace="sales" allowedRoles={['ADMIN']} />}>
-        <Route element={<AppShell navItems={salesAdminNav} workspaceLabel="Vendas — Admin" accentLabel="Administrador" />}>
+        <Route element={<AppShell navItems={salesAdminNav} workspaceLabel={t.shell.workspaceSalesAdmin} accentLabel={t.shell.accentAdmin} />}>
           <Route path="/sales-admin/dashboard" element={<SalesDashboardPage />} />
           <Route path="/sales-admin/products" element={<SalesProductsPage />} />
           <Route path="/sales-admin/categories" element={<SalesCategoriesPage />} />
@@ -48,7 +50,7 @@ export default function App() {
 
       {/* Stock workspace (nori-stock, role OPERATOR/ADMIN) */}
       <Route element={<ProtectedRoute workspace="stock" allowedRoles={['OPERATOR', 'ADMIN']} />}>
-        <Route element={<AppShell navItems={stockNav} workspaceLabel="Estoque" accentLabel="Operador" />}>
+        <Route element={<AppShell navItems={stockNav} workspaceLabel={t.shell.workspaceStock} accentLabel={t.shell.accentOperator}/>}>
           <Route path="/stock/dashboard" element={<StockDashboardPage />} />
           <Route path="/stock/products" element={<StockProductsPage />} />
           <Route path="/stock/categories" element={<StockCategoriesPage />} />

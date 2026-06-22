@@ -7,10 +7,12 @@ import { Badge } from '@/components/ui/Badge';
 import { FullPageSpinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatCurrency } from '@/lib/utils';
+import { useLocale } from '@/i18n/LocaleContext';
 
 export default function CatalogPage() {
   const { data, isLoading } = useSalesProducts();
   const addToCart = useCartStore((s) => s.add);
+  const { t } = useLocale();
 
   if (isLoading) return <FullPageSpinner />;
 
@@ -19,8 +21,8 @@ export default function CatalogPage() {
   return (
     <div>
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Catálogo</h1>
-        <p className="text-text-dim text-sm mt-1">Produtos disponíveis para compra</p>
+        <h1 className="text-2xl font-semibold">{t.buyer.catalog.title}</h1>
+        <p className="text-text-dim text-sm mt-1">{t.buyer.catalog.subtitle}</p>
       </header>
 
       {products.length === 0 ? (
@@ -42,9 +44,9 @@ export default function CatalogPage() {
                   <div className="mt-auto flex items-center justify-between pt-2">
                     <span className="text-lg font-semibold">{formatCurrency(product.price)}</span>
                     {outOfStock ? (
-                      <Badge tone="danger">Sem estoque</Badge>
+                      <Badge tone="danger">{t.buyer.catalog.outOfStock}</Badge>
                     ) : (
-                      <Badge tone="success">{product.availableQuantity} disp.</Badge>
+                      <Badge tone="success">{t.buyer.catalog.available(product.availableQuantity)}</Badge>
                     )}
                   </div>
                   <Button
@@ -54,7 +56,7 @@ export default function CatalogPage() {
                     className="w-full"
                   >
                     <ShoppingCart className="h-4 w-4" />
-                    Adicionar
+                     {t.buyer.catalog.addToCart}
                   </Button>
                 </CardBody>
               </Card>

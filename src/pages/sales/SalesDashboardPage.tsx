@@ -3,6 +3,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { useSalesProducts, useSalesCategories } from '@/hooks/useSales';
 import { useMyOrders } from '@/hooks/useSales';
 import { formatCurrency } from '@/lib/utils';
+import { useLocale } from '@/i18n/LocaleContext';
 
 function StatCard({
   icon: Icon,
@@ -32,6 +33,7 @@ export default function SalesDashboardPage() {
   const { data: productsPage } = useSalesProducts();
   const { data: categories } = useSalesCategories();
   const { data: orders } = useMyOrders();
+  const { t } = useLocale();
 
   const revenue =
     orders?.filter((o) => o.status === 'PAYMENT_CONFIRMED').reduce((s, o) => s + o.totalPrice, 0) ?? 0;
@@ -39,15 +41,15 @@ export default function SalesDashboardPage() {
   return (
     <div>
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Dashboard — Vendas</h1>
-        <p className="text-text-dim text-sm mt-1">Visão geral da loja</p>
+        <h1 className="text-2xl font-semibold">{t.salesAdmin.dashboard.title}</h1>
+        <p className="text-text-dim text-sm mt-1">{t.salesAdmin.dashboard.subtitle}</p>
       </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Boxes} label="Produtos" value={productsPage?.totalElements ?? 0} />
-        <StatCard icon={Tags} label="Categorias" value={categories?.length ?? 0} />
-        <StatCard icon={Receipt} label="Pedidos" value={orders?.length ?? 0} />
-        <StatCard icon={TrendingUp} label="Receita confirmada" value={formatCurrency(revenue)} />
+        <StatCard icon={Boxes} label={t.salesAdmin.dashboard.statProducts}  value={productsPage?.totalElements ?? 0} />
+        <StatCard icon={Tags} label={t.salesAdmin.dashboard.statCategories} value={categories?.length ?? 0} />
+        <StatCard icon={Receipt} label={t.salesAdmin.dashboard.statOrders}  value={orders?.length ?? 0} />
+        <StatCard icon={TrendingUp} label={t.salesAdmin.dashboard.statRevenue} value={formatCurrency(revenue)} />
       </div>
     </div>
   );

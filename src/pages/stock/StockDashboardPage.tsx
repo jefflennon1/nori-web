@@ -3,6 +3,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useStockProducts, useSectors, useMovements } from '@/hooks/useStock';
 import { FullPageSpinner } from '@/components/ui/Spinner';
+import { useLocale } from '@/i18n/LocaleContext';
 
 function StatCard({ icon: Icon, label, value }: { icon: typeof Boxes; label: string; value: string | number }) {
   return (
@@ -24,6 +25,7 @@ export default function StockDashboardPage() {
   const { data: products, isLoading: loadingProducts } = useStockProducts();
   const { data: sectors } = useSectors();
   const { data: movements } = useMovements();
+  const { t } = useLocale();
 
   if (loadingProducts) return <FullPageSpinner />;
 
@@ -32,15 +34,15 @@ export default function StockDashboardPage() {
   return (
     <div>
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Dashboard — Estoque</h1>
-        <p className="text-text-dim text-sm mt-1">Visão geral do armazém</p>
+        <h1 className="text-2xl font-semibold">{t.stock.dashboard.title}</h1>
+        <p className="text-text-dim text-sm mt-1">{t.stock.dashboard.subtitle}</p>
       </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard icon={Boxes} label="Produtos" value={products?.length ?? 0} />
-        <StatCard icon={MapPin} label="Setores" value={sectors?.length ?? 0} />
-        <StatCard icon={ArrowLeftRight} label="Movimentações" value={movements?.length ?? 0} />
-        <StatCard icon={AlertTriangle} label="Estoque baixo" value={lowStock.length} />
+        <StatCard icon={Boxes} label={t.stock.dashboard.statProducts} value={products?.length ?? 0} />
+        <StatCard icon={MapPin} label={t.stock.dashboard.statSectors} value={sectors?.length ?? 0} />
+        <StatCard icon={ArrowLeftRight} label={t.stock.dashboard.statMovements}  value={movements?.length ?? 0} />
+        <StatCard icon={AlertTriangle} label={t.stock.dashboard.statLowStock} value={lowStock.length} />
       </div>
 
       {lowStock.length > 0 && (
@@ -48,7 +50,7 @@ export default function StockDashboardPage() {
           <CardHeader>
             <span className="font-medium flex items-center gap-2 text-warning">
               <AlertTriangle className="h-4 w-4" />
-              Produtos com estoque abaixo do mínimo
+              {t.stock.dashboard.lowStockTitle}
             </span>
           </CardHeader>
           <CardBody className="space-y-2">
@@ -56,7 +58,7 @@ export default function StockDashboardPage() {
               <div key={p.id} className="flex items-center justify-between text-sm">
                 <span>{p.name}</span>
                 <Badge tone="warning">
-                  {p.quantity} / mín. {p.minQuantity}
+                 {t.stock.dashboard.minLabel(p.quantity, p.minQuantity)}
                 </Badge>
               </div>
             ))}

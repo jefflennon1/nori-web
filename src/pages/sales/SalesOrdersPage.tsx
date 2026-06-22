@@ -6,6 +6,7 @@ import { FullPageSpinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { OrderStatus } from '@/types';
+import { useLocale } from '@/i18n/LocaleContext';
 
 const statusTone: Record<OrderStatus, 'warning' | 'success' | 'danger'> = {
   PENDING_PAYMENT: 'warning',
@@ -14,11 +15,8 @@ const statusTone: Record<OrderStatus, 'warning' | 'success' | 'danger'> = {
 };
 
 export default function SalesOrdersPage() {
-  // Nota: o endpoint /orders hoje retorna apenas pedidos do usuário autenticado
-  // (extraído via SecurityContextHolder). Para uma visão administrativa de TODOS
-  // os pedidos, será necessário um endpoint dedicado tipo GET /orders/all (ADMIN only)
-  // no nori-sales — ainda não existe no backend.
   const { data, isLoading } = useMyOrders();
+  const { t } = useLocale();
 
   if (isLoading) return <FullPageSpinner />;
 
@@ -26,8 +24,7 @@ export default function SalesOrdersPage() {
     return (
       <EmptyState
         icon={Receipt}
-        title="Nenhum pedido encontrado"
-        description="Endpoint atual retorna apenas pedidos do usuário logado — falta endpoint admin para listar todos."
+        title={t.salesAdmin.orders.empty}
       />
     );
   }
@@ -35,7 +32,7 @@ export default function SalesOrdersPage() {
   return (
     <div>
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Pedidos</h1>
+        <h1 className="text-2xl font-semibold">{t.salesAdmin.orders.title}</h1>
       </header>
       <div className="space-y-3">
         {data.map((order) => (

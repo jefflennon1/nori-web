@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { FullPageSpinner } from '@/components/ui/Spinner';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { OrderStatus } from '@/types';
+import { useLocale } from '@/i18n/LocaleContext';
 
 const statusTone: Record<OrderStatus, 'warning' | 'success' | 'danger'> = {
   PENDING_PAYMENT: 'warning',
@@ -20,6 +21,7 @@ export default function OrderDetailPage() {
   const { data: order, isLoading } = useOrder(id);
   const generatePix = useGeneratePix();
   const [copied, setCopied] = useState(false);
+  const { t } = useLocale();
 
   if (isLoading) return <FullPageSpinner />;
   if (!order) return null;
@@ -35,14 +37,14 @@ export default function OrderDetailPage() {
   return (
     <div className="max-w-2xl">
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Pedido #{order.id.slice(0, 8)}</h1>
+        <h1 className="text-2xl font-semibold"> {t.buyer.orders.orderNumber(order.id.slice(0, 8))}</h1>
         <p className="text-text-dim text-sm mt-1">{formatDate(order.createdAt)}</p>
       </header>
 
       <Card className="mb-6">
         <CardHeader className="flex items-center justify-between">
-          <span className="font-medium">Itens</span>
-          <Badge tone={statusTone[order.status]}>{order.status}</Badge>
+          <span className="font-medium">{t.buyer.orderDetail.items}</span>
+          <Badge tone={statusTone[order.status]}>{t.buyer.orders.status[order.status]}</Badge>
         </CardHeader>
         <CardBody className="space-y-3">
           {order.items.map((item, idx) => (
@@ -54,7 +56,7 @@ export default function OrderDetailPage() {
             </div>
           ))}
           <div className="border-t border-border pt-3 flex items-center justify-between font-semibold">
-            <span>Total</span>
+            <span>{t.buyer.orderDetail.total}</span>
             <span>{formatCurrency(order.totalPrice)}</span>
           </div>
         </CardBody>
@@ -63,7 +65,7 @@ export default function OrderDetailPage() {
       {order.status === 'PENDING_PAYMENT' && (
         <Card>
           <CardHeader>
-            <span className="font-medium">Pagamento via Pix</span>
+            <span className="font-medium">{t.buyer.orderDetail.pixTitle}</span>
           </CardHeader>
           <CardBody>
             {!pix ? (
@@ -72,21 +74,21 @@ export default function OrderDetailPage() {
                 onClick={() => generatePix.mutate(order.id)}
               >
                 <QrCode className="h-4 w-4" />
-                Gerar QR Code Pix
+               {t.buyer.orderDetail.generatePix}
               </Button>
             ) : (
               <div className="flex flex-col items-center gap-4">
                 <img
                   src={`data:image/png;base64,${pix.pixQrCodeB64}`}
-                  alt="QR Code Pix"
+                  alt={t.buyer.orderDetail.qrAlt}
                   className="h-48 w-48 rounded-lg border border-border bg-white p-2"
                 />
                 <Button variant="secondary" onClick={() => handleCopy(pix.pixQrCode)} className="w-full">
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  {copied ? 'Copiado!' : 'Copiar código Pix'}
+                  {copied ? t.buyer.orderDetail.copied : t.buyer.orderDetail.copyPix}
                 </Button>
                 <p className="text-xs text-text-dim text-center">
-                  Após o pagamento, a confirmação chega automaticamente via webhook do Mercado Pago.
+                 {t.buyer.orderDetail.pixHint}
                 </p>
               </div>
             )}

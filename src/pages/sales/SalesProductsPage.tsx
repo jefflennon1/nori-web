@@ -9,6 +9,7 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FullPageSpinner } from '@/components/ui/Spinner';
 import { formatCurrency } from '@/lib/utils';
+import { useLocale } from '@/i18n/LocaleContext';
 
 export default function SalesProductsPage() {
   const { data, isLoading } = useSalesProducts();
@@ -22,6 +23,7 @@ export default function SalesProductsPage() {
     price: '',
     availableQuantity: '',
   });
+  const { t } = useLocale();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,12 +45,12 @@ export default function SalesProductsPage() {
     <div>
       <header className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Produtos</h1>
-          <p className="text-text-dim text-sm mt-1">Catálogo da loja</p>
+          <h1 className="text-2xl font-semibold">{t.salesAdmin.products.title}</h1>
+          <p className="text-text-dim text-sm mt-1">{t.salesAdmin.products.subtitle}</p>
         </div>
         <Button onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4" />
-          Novo produto
+          {t.salesAdmin.products.newProduct}
         </Button>
       </header>
 
@@ -78,7 +80,7 @@ export default function SalesProductsPage() {
       <Modal open={open} onClose={() => setOpen(false)} title="Novo produto">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label>Nome</Label>
+            <Label>{t.common.name}</Label>
             <Input
               required
               value={form.name}
@@ -92,7 +94,7 @@ export default function SalesProductsPage() {
               value={form.categoryId}
               onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
             >
-              <option value="">Selecione...</option>
+              <option value="">{t.common.select}</option>
               {categories?.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -101,7 +103,7 @@ export default function SalesProductsPage() {
             </Select>
           </div>
           <div>
-            <Label>Descrição</Label>
+            <Label>{t.common.description}</Label>
             <Input
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -109,7 +111,7 @@ export default function SalesProductsPage() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Preço (R$)</Label>
+              <Label>{form.price}</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -119,7 +121,7 @@ export default function SalesProductsPage() {
               />
             </div>
             <div>
-              <Label>Qtd. disponível</Label>
+              <Label>{t.salesAdmin.products.fieldAvailableQty}</Label>
               <Input
                 type="number"
                 required
@@ -129,7 +131,7 @@ export default function SalesProductsPage() {
             </div>
           </div>
           <Button type="submit" className="w-full" loading={createProduct.isPending}>
-            Salvar
+             {t.common.save}
           </Button>
         </form>
       </Modal>

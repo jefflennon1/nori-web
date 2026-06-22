@@ -7,12 +7,14 @@ import { Input, Label } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FullPageSpinner } from '@/components/ui/Spinner';
+import { useLocale } from '@/i18n/LocaleContext';
 
 export default function StockCategoriesPage() {
   const { data, isLoading } = useStockCategories();
   const createCategory = useCreateStockCategory();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: '', description: '' });
+  const { t } = useLocale();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,10 +28,10 @@ export default function StockCategoriesPage() {
   return (
     <div>
       <header className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Categorias</h1>
+        <h1 className="text-2xl font-semibold">{t.stock.categories.title}</h1>
         <Button onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4" />
-          Nova categoria
+           {t.stock.categories.newCategory}
         </Button>
       </header>
 
@@ -51,15 +53,15 @@ export default function StockCategoriesPage() {
       <Modal open={open} onClose={() => setOpen(false)} title="Nova categoria">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label>Nome</Label>
+            <Label>{t.common.name}</Label>
             <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </div>
           <div>
-            <Label>Descrição</Label>
+            <Label>{t.common.description}</Label>
             <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
           <Button type="submit" className="w-full" loading={createCategory.isPending}>
-            Salvar
+            {t.common.save}
           </Button>
         </form>
       </Modal>
