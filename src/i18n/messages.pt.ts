@@ -8,6 +8,16 @@ const messages = {
     logout: 'Sair',
   },
 
+  toast: {
+    productCreated: 'Produto criado com sucesso!',
+    categoryCreated: 'Categoria criada com sucesso!',
+    sectorCreated: 'Setor criado com sucesso!',
+    movementCreated: 'Movimentação registrada com sucesso!',
+    orderCreated: 'Pedido realizado com sucesso!',
+    pixGenerated: 'QR Code Pix gerado!',
+    genericError: 'Ocorreu um erro. Tente novamente.',
+  },
+
   nav: {
     dashboard: 'Dashboard',
     catalog: 'Catálogo',
@@ -104,6 +114,7 @@ const messages = {
       fieldCategory: 'Categoria',
       fieldPrice: 'Preço (R$)',
       fieldAvailableQty: 'Qtd. disponível',
+      fieldAboutAvailableQty: 'A quantidade disponível de um produto é alterada apenas pelo sistema de estoque.'
     },
     categories: {
       title: 'Categorias',

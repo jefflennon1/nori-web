@@ -34,11 +34,13 @@ export const productsSalesApi = {
       .then((r) => r.data),
   get: (id: string) => salesApi.get<PageResponse<ProductSalesDTO>>(`/products/${id}`).then((r) => r.data),
   create: (payload: {
+    id?: string | null,
     name: string;
-    categoryId: string;
+    category: CategorySalesDTO;
     description?: string;
     price: number;
     availableQuantity: number;
+    active?: boolean;
   }) => salesApi.post<ProductSalesDTO>('/products', payload).then((r) => r.data),
   update: (id: string, payload: Record<string, unknown>) =>
     salesApi.put<ProductSalesDTO>(`/products/${id}`, payload).then((r) => r.data),

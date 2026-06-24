@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Boxes } from 'lucide-react';
 import { useSalesProducts, useSalesCategories, useCreateSalesProduct } from '@/hooks/useSales';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Input, Label, Select } from '@/components/ui/Input';
+import { Tooltip } from '@/components/ui/Tooltip';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FullPageSpinner } from '@/components/ui/Spinner';
 import { formatCurrency } from '@/lib/utils';
 import { useLocale } from '@/i18n/LocaleContext';
+import type { CategorySalesDTO } from '@/types';
 
 export default function SalesProductsPage() {
   const { data, isLoading } = useSalesProducts();
@@ -25,21 +27,38 @@ export default function SalesProductsPage() {
   });
   const { t } = useLocale();
 
+  const [categoryDTO, setCategoryDTO] = useState<CategorySalesDTO>();
+
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+     if (!categoryDTO) return;
+
     await createProduct.mutateAsync({
+      id: null,
       name: form.name,
-      categoryId: form.categoryId,
+      category: categoryDTO,
       description: form.description || undefined,
       price: Number(form.price),
       availableQuantity: Number(form.availableQuantity),
+      active: true
     });
     setOpen(false);
     setForm({ name: '', categoryId: '', description: '', price: '', availableQuantity: '' });
   }
 
+    useEffect(()=>{
+      if(categories){
+       const cat = categories.content.find((item)=> item.id == form.categoryId);
+       if(cat){
+        setCategoryDTO(cat);
+       }
+      }
+  }, [form.categoryId]);
+
   if (isLoading) return <FullPageSpinner />;
   const products = data?.content ?? [];
+ 
 
   return (
     <div>
@@ -111,7 +130,7 @@ export default function SalesProductsPage() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>{form.price}</Label>
+              <Label>{t.salesAdmin.products.fieldPrice}</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -121,13 +140,17 @@ export default function SalesProductsPage() {
               />
             </div>
             <div>
-              <Label>{t.salesAdmin.products.fieldAvailableQty}</Label>
-              <Input
-                type="number"
-                required
-                value={form.availableQuantity}
-                onChange={(e) => setForm({ ...form, availableQuantity: e.target.value })}
-              />
+              <Label className='text-warning border-warning/50'>{t.salesAdmin.products.fieldAvailableQty}</Label>
+              <Tooltip content={t.salesAdmin.products.fieldAboutAvailableQty}>
+                <Input
+                  disabled={true}
+                  type="number"
+                  required
+                  value={0}
+                  onChange={(e) => setForm({ ...form, availableQuantity: e.target.value })}
+                  className='text-warning border-warning/30'
+                />
+              </Tooltip>
             </div>
           </div>
           <Button type="submit" className="w-full" loading={createProduct.isPending}>

@@ -10,6 +10,16 @@ const messages: Messages = {
     logout: 'Log out',
   },
 
+  toast: {
+    productCreated: 'Product created successfully!',
+    categoryCreated: 'Category created successfully!',
+    sectorCreated: 'Sector created successfully!',
+    movementCreated: 'Movement registered successfully!',
+    orderCreated: 'Order placed successfully!',
+    pixGenerated: 'Pix QR Code generated!',
+    genericError: 'An error occurred. Please try again.',
+  },
+
   nav: {
     dashboard: 'Dashboard',
     catalog: 'Catalog',
@@ -106,6 +116,7 @@ const messages: Messages = {
       fieldCategory: 'Category',
       fieldPrice: 'Price (R$)',
       fieldAvailableQty: 'Available qty.',
+      fieldAboutAvailableQty: 'The available quantity of a product is changed only by the inventory system.'
     },
     categories: {
       title: 'Categories',
