@@ -58,6 +58,11 @@ export function AppShell({
             >
               <item.icon className="h-4 w-4" />
               {item.label}
+              {item.badge != null && item.badge > 0 && (
+                <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-danger text-white text-xs font-bold px-1">
+                  {item.badge > 99 ? '99+' : item.badge}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
