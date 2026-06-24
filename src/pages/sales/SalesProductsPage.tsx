@@ -95,7 +95,7 @@ export default function SalesProductsPage() {
               onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
             >
               <option value="">{t.common.select}</option>
-              {categories?.map((c) => (
+              {categories?.content.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>

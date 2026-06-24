@@ -16,8 +16,8 @@ export const salesAuthApi = {
 };
 
 export const categoriesSalesApi = {
-  list: () => salesApi.get<CategorySalesDTO[]>('/categories').then((r) => r.data),
-  create: (payload: { name: string; description?: string }) =>
+  list: () => salesApi.get<PageResponse<CategorySalesDTO>>('/categories').then((r) => r.data),
+  create: (payload: { id: null; name: string; description?: string ; active : true }) =>
     salesApi.post<CategorySalesDTO>('/categories', payload).then((r) => r.data),
   update: (id: string, payload: { name: string; description?: string }) =>
     salesApi.put<CategorySalesDTO>(`/categories/${id}`, payload).then((r) => r.data),
@@ -32,7 +32,7 @@ export const productsSalesApi = {
         { params: { page, size } }
       )
       .then((r) => r.data),
-  get: (id: string) => salesApi.get<ProductSalesDTO>(`/products/${id}`).then((r) => r.data),
+  get: (id: string) => salesApi.get<PageResponse<ProductSalesDTO>>(`/products/${id}`).then((r) => r.data),
   create: (payload: {
     name: string;
     categoryId: string;

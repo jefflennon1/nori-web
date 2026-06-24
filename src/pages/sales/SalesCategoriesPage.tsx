@@ -13,14 +13,14 @@ export default function SalesCategoriesPage() {
   const { data, isLoading } = useSalesCategories();
   const createCategory = useCreateSalesCategory();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', description: '' });
+  const [form, setForm] = useState({ id: null, name: '', description: '' , active: false});
   const { t } = useLocale();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await createCategory.mutateAsync({ name: form.name, description: form.description || undefined });
+    await createCategory.mutateAsync({ id : null, name: form.name, description: form.description || undefined, active : true });
     setOpen(false);
-    setForm({ name: '', description: '' });
+    setForm({id: null,  name: '', description: '' , active : true});
   }
 
   if (isLoading) return <FullPageSpinner />;
@@ -35,11 +35,11 @@ export default function SalesCategoriesPage() {
         </Button>
       </header>
 
-      {!data || data.length === 0 ? (
+      {!data?.content || data.content.length === 0 ? (
         <EmptyState icon={Tags} title="Nenhuma categoria cadastrada" />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {data.map((c) => (
+          {data.content.map((c) => (
             <Card key={c.id}>
               <CardBody>
                 <p className="font-medium">{c.name}</p>

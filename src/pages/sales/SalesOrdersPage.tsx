@@ -20,7 +20,7 @@ export default function SalesOrdersPage() {
 
   if (isLoading) return <FullPageSpinner />;
 
-  if (!data || data.length === 0) {
+  if (!data?.content || data.content.length === 0) {
     return (
       <EmptyState
         icon={Receipt}
@@ -35,7 +35,7 @@ export default function SalesOrdersPage() {
         <h1 className="text-2xl font-semibold">{t.salesAdmin.orders.title}</h1>
       </header>
       <div className="space-y-3">
-        {data.map((order) => (
+        {data.content.map((order) => (
           <Card key={order.id}>
             <CardBody className="flex items-center justify-between">
               <div>
