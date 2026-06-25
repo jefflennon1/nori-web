@@ -9,13 +9,17 @@ import { Tooltip } from '@/components/ui/Tooltip';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FullPageSpinner } from '@/components/ui/Spinner';
+import { Pagination } from '@/components/ui/Pagination';
 import { formatCurrency } from '@/lib/utils';
 import { useLocale } from '@/i18n/LocaleContext';
 import type { CategorySalesDTO } from '@/types';
 
+const PAGE_SIZE = 10;
+
 export default function SalesProductsPage() {
-  const { data, isLoading } = useSalesProducts();
-  const { data: categories } = useSalesCategories();
+  const [page, setPage] = useState(0);
+  const { data, isLoading } = useSalesProducts(page, PAGE_SIZE);
+  const { data: categories } = useSalesCategories(0, 100); // DEFAULT
   const createProduct = useCreateSalesProduct();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -76,24 +80,34 @@ export default function SalesProductsPage() {
       {products.length === 0 ? (
         <EmptyState icon={Boxes} title="Nenhum produto cadastrado" />
       ) : (
-        <div className="space-y-2">
-          {products.map((p) => (
-            <Card key={p.id}>
-              <CardBody className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{p.name}</p>
-                  <p className="text-sm text-text-dim">{p.category?.name}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Badge tone={p.availableQuantity > 0 ? 'success' : 'danger'}>
-                    {p.availableQuantity} em estoque
-                  </Badge>
-                  <span className="font-semibold w-24 text-right">{formatCurrency(p.price)}</span>
-                </div>
-              </CardBody>
-            </Card>
-          ))}
-        </div>
+        <>
+          <div className="space-y-2">
+            {products.map((p) => (
+              <Card key={p.id}>
+                <CardBody className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{p.name}</p>
+                    <p className="text-sm text-text-dim">{p.category?.name}</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Badge tone={p.availableQuantity > 0 ? 'success' : 'danger'}>
+                      {p.availableQuantity} em estoque
+                    </Badge>
+                    <span className="font-semibold w-24 text-right">{formatCurrency(p.price)}</span>
+                  </div>
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+
+          <Pagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            totalElements={data?.totalElements ?? 0}
+            totalPages={data?.totalPages ?? 1}
+            onPageChange={setPage}
+          />
+        </>
       )}
 
       <Modal open={open} onClose={() => setOpen(false)} title="Novo produto">

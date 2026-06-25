@@ -29,7 +29,7 @@ function BuyerShell() {
   const { t } = useLocale();
   const baseNav = useBuyerNav();
   const cartCount = useCartStore((s) => s.lines.reduce((sum, l) => sum + l.quantity, 0));
-  const { data: ordersData } = useMyOrders();
+  const { data: ordersData } = useMyOrders(0, 100);
   const pendingCount = useMemo(
     () => ordersData?.content?.filter((o) => o.status === 'PENDING_PAYMENT').length ?? 0,
     [ordersData]

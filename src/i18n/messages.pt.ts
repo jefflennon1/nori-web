@@ -8,6 +8,12 @@ const messages = {
     logout: 'Sair',
   },
 
+  pagination: {
+    showing: (from: number, to: number, total: number) => `Exibindo ${from}–${to} de ${total}`,
+    prev: 'Anterior',
+    next: 'Próxima',
+  },
+
   toast: {
     productCreated: 'Produto criado com sucesso!',
     categoryCreated: 'Categoria criada com sucesso!',

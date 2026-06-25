@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Receipt } from 'lucide-react';
 import { useMyOrders } from '@/hooks/useSales';
@@ -5,6 +6,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { FullPageSpinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Pagination } from '@/components/ui/Pagination';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { OrderStatus } from '@/types';
 import { useLocale } from '@/i18n/LocaleContext';
@@ -15,20 +17,19 @@ const statusTone: Record<OrderStatus, 'warning' | 'success' | 'danger'> = {
   CANCELLED: 'danger',
 };
 
-const statusLabel: Record<OrderStatus, string> = {
-  PENDING_PAYMENT: 'Pagamento pendente',
-  PAYMENT_CONFIRMED: 'Pagamento confirmado',
-  CANCELLED: 'Cancelado',
-};
+const PAGE_SIZE = 10;
 
 export default function OrdersPage() {
-  const { data, isLoading } = useMyOrders();
+  const [page, setPage] = useState(0);
+  const { data, isLoading } = useMyOrders(page, PAGE_SIZE);
   const navigate = useNavigate();
   const { t } = useLocale();
 
   if (isLoading) return <FullPageSpinner />;
 
-  if (!data?.content || data.content.length === 0) {
+  const orders = data?.content ?? [];
+
+  if (orders.length === 0 && page === 0) {
     return <EmptyState icon={Receipt} title={t.buyer.orders.empty} />;
   }
 
@@ -39,7 +40,7 @@ export default function OrdersPage() {
       </header>
 
       <div className="space-y-3">
-        {data.content.map((order) => (
+        {orders.map((order) => (
           <Card
             key={order.id}
             className="cursor-pointer hover:border-accent/40 transition-colors"
@@ -58,6 +59,13 @@ export default function OrdersPage() {
           </Card>
         ))}
       </div>
+      <Pagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        totalElements={data?.totalElements ?? 0}
+        totalPages={data?.totalPages ?? 1}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

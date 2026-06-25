@@ -1,14 +1,7 @@
 import { stockApi } from './stockClient';
-import type { CategoryStockDTO, ProductStockDTO, SectorDTO, StockMovementDTO } from '@/types';
+import type { CategoryStockDTO, ProductStockDTO, SectorDTO, StockMovementDTO, PageResponse } from '@/types';
 import { mockCategories, mockMovements, mockProducts, mockSectors } from './stockMockData';
 
-/**
- * Vários endpoints de CRUD do nori-stock ainda estão sendo implementados no backend
- * (ver controller/ — hoje só existe AuthController). Para o front não ficar bloqueado,
- * cada função real tenta a chamada de verdade e, se ela falhar (404/501/erro de rede),
- * cai automaticamente para os dados mock. Assim que o endpoint existir de fato no
- * backend, o front passa a usar dados reais sem precisar de nenhuma mudança aqui.
- */
 async function withFallback<T>(real: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await real();
@@ -24,10 +17,10 @@ export const stockAuthApi = {
 };
 
 export const categoriesStockApi = {
-  list: () =>
+  list: (page = 0, size = 20) =>
     withFallback(
-      () => stockApi.get<CategoryStockDTO[]>('/categories').then((r) => r.data),
-      mockCategories
+      () => stockApi.get<PageResponse<CategoryStockDTO>>('/categories', { params: { page, size } }).then((r) => r.data),
+      { content: mockCategories, totalElements: mockCategories.length, totalPages: 1, number: 0, size, empty: false, first: true, last: true, numberOfElements: mockCategories.length } as PageResponse<CategoryStockDTO>
     ),
   create: (payload: { name: string; description?: string }) =>
     withFallback(
@@ -37,8 +30,11 @@ export const categoriesStockApi = {
 };
 
 export const sectorsApi = {
-  list: () =>
-    withFallback(() => stockApi.get<SectorDTO[]>('/sectors').then((r) => r.data), mockSectors),
+  list: (page = 0, size = 20) =>
+    withFallback(
+      () => stockApi.get<PageResponse<SectorDTO>>('/sectors', { params: { page, size } }).then((r) => r.data),
+      { content: mockSectors, totalElements: mockSectors.length, totalPages: 1, number: 0, size, empty: false, first: true, last: true, numberOfElements: mockSectors.length } as PageResponse<SectorDTO>
+    ),
   create: (payload: { name: string; description?: string; location?: string }) =>
     withFallback(
       () => stockApi.post<SectorDTO>('/sectors', payload).then((r) => r.data),
@@ -47,10 +43,10 @@ export const sectorsApi = {
 };
 
 export const productsStockApi = {
-  list: () =>
+  list: (page = 0, size = 20) =>
     withFallback(
-      () => stockApi.get<ProductStockDTO[]>('/products').then((r) => r.data),
-      mockProducts
+      () => stockApi.get<PageResponse<ProductStockDTO>>('/products', { params: { page, size } }).then((r) => r.data),
+      { content: mockProducts, totalElements: mockProducts.length, totalPages: 1, number: 0, size, empty: false, first: true, last: true, numberOfElements: mockProducts.length } as PageResponse<ProductStockDTO>
     ),
   create: (payload: {
     name: string;
@@ -73,10 +69,10 @@ export const productsStockApi = {
 };
 
 export const movementsApi = {
-  list: () =>
+  list: (page = 0, size = 20) =>
     withFallback(
-      () => stockApi.get<StockMovementDTO[]>('/stock-movements').then((r) => r.data),
-      mockMovements
+      () => stockApi.get<PageResponse<StockMovementDTO>>('/stock-movements', { params: { page, size } }).then((r) => r.data),
+      { content: mockMovements, totalElements: mockMovements.length, totalPages: 1, number: 0, size, empty: false, first: true, last: true, numberOfElements: mockMovements.length } as PageResponse<StockMovementDTO>
     ),
   create: (payload: {
     productId: string;

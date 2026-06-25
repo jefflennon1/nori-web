@@ -22,14 +22,15 @@ function StatCard({ icon: Icon, label, value }: { icon: typeof Boxes; label: str
 }
 
 export default function StockDashboardPage() {
-  const { data: products, isLoading: loadingProducts } = useStockProducts();
-  const { data: sectors } = useSectors();
-  const { data: movements } = useMovements();
+  const { data: productsData, isLoading: loadingProducts } = useStockProducts(0, 100);
+  const { data: sectorsData } = useSectors(0, 1);
+  const { data: movementsData } = useMovements(0, 1);
   const { t } = useLocale();
 
   if (loadingProducts) return <FullPageSpinner />;
 
-  const lowStock = products?.filter((p) => p.quantity <= p.minQuantity) ?? [];
+  const products = productsData?.content ?? [];
+  const lowStock = products.filter((p) => p.quantity <= p.minQuantity);
 
   return (
     <div>
@@ -39,9 +40,9 @@ export default function StockDashboardPage() {
       </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard icon={Boxes} label={t.stock.dashboard.statProducts} value={products?.length ?? 0} />
-        <StatCard icon={MapPin} label={t.stock.dashboard.statSectors} value={sectors?.length ?? 0} />
-        <StatCard icon={ArrowLeftRight} label={t.stock.dashboard.statMovements}  value={movements?.length ?? 0} />
+        <StatCard icon={Boxes} label={t.stock.dashboard.statProducts} value={productsData?.totalElements ?? 0} />
+        <StatCard icon={MapPin} label={t.stock.dashboard.statSectors} value={sectorsData?.totalElements ?? 0} />
+        <StatCard icon={ArrowLeftRight} label={t.stock.dashboard.statMovements}  value={movementsData?.totalElements ?? 0} />
         <StatCard icon={AlertTriangle} label={t.stock.dashboard.statLowStock} value={lowStock.length} />
       </div>
 

@@ -30,9 +30,9 @@ function StatCard({
 }
 
 export default function SalesDashboardPage() {
-  const { data: productsPage } = useSalesProducts();
-  const { data: categories } = useSalesCategories();
-  const { data: orders } = useAllOrders();
+  const { data: productsPage } = useSalesProducts(0, 1);
+  const { data: categories } = useSalesCategories(0, 1);
+  const { data: orders } = useAllOrders(0, 100);
   const { t } = useLocale();
 
   const revenue =
@@ -47,8 +47,8 @@ export default function SalesDashboardPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Boxes} label={t.salesAdmin.dashboard.statProducts}  value={productsPage?.totalElements ?? 0} />
-        <StatCard icon={Tags} label={t.salesAdmin.dashboard.statCategories} value={categories?.content.length ?? 0} />
-        <StatCard icon={Receipt} label={t.salesAdmin.dashboard.statOrders}  value={orders?.content.length ?? 0} />
+        <StatCard icon={Tags} label={t.salesAdmin.dashboard.statCategories} value={categories?.totalElements ?? 0} />
+        <StatCard icon={Receipt} label={t.salesAdmin.dashboard.statOrders}  value={orders?.totalElements ?? 0} />
         <StatCard icon={TrendingUp} label={t.salesAdmin.dashboard.statRevenue} value={formatCurrency(revenue)} />
       </div>
     </div>

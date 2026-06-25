@@ -7,10 +7,14 @@ import { Input, Label } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FullPageSpinner } from '@/components/ui/Spinner';
+import { Pagination } from '@/components/ui/Pagination';
 import { useLocale } from '@/i18n/LocaleContext';
 
+const PAGE_SIZE = 10;
+
 export default function StockCategoriesPage() {
-  const { data, isLoading } = useStockCategories();
+  const [page, setPage] = useState(0);
+  const { data, isLoading } = useStockCategories(page, PAGE_SIZE);
   const createCategory = useCreateStockCategory();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: '', description: '' });
@@ -25,6 +29,8 @@ export default function StockCategoriesPage() {
 
   if (isLoading) return <FullPageSpinner />;
 
+  const categories = data?.content ?? [];
+
   return (
     <div>
       <header className="mb-6 flex items-center justify-between">
@@ -35,19 +41,28 @@ export default function StockCategoriesPage() {
         </Button>
       </header>
 
-      {!data || data.length === 0 ? (
+      {categories.length === 0 && page === 0 ? (
         <EmptyState icon={Tags} title="Nenhuma categoria cadastrada" />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {data.map((c) => (
-            <Card key={c.id}>
-              <CardBody>
-                <p className="font-medium">{c.name}</p>
-                {c.description && <p className="text-sm text-text-dim mt-1">{c.description}</p>}
-              </CardBody>
-            </Card>
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {categories.map((c) => (
+              <Card key={c.id}>
+                <CardBody>
+                  <p className="font-medium">{c.name}</p>
+                  {c.description && <p className="text-sm text-text-dim mt-1">{c.description}</p>}
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+          <Pagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            totalElements={data?.totalElements ?? 0}
+            totalPages={data?.totalPages ?? 1}
+            onPageChange={setPage}
+          />
+        </>
       )}
 
       <Modal open={open} onClose={() => setOpen(false)} title="Nova categoria">

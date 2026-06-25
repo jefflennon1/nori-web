@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Receipt } from 'lucide-react';
-import { useMyOrders } from '@/hooks/useSales';
+import { useAllOrders } from '@/hooks/useSales';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { FullPageSpinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Pagination } from '@/components/ui/Pagination';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { OrderStatus } from '@/types';
 import { useLocale } from '@/i18n/LocaleContext';
@@ -14,19 +16,19 @@ const statusTone: Record<OrderStatus, 'warning' | 'success' | 'danger'> = {
   CANCELLED: 'danger',
 };
 
+const PAGE_SIZE = 10;
+
 export default function SalesOrdersPage() {
-  const { data, isLoading } = useMyOrders();
+  const [page, setPage] = useState(0);
+  const { data, isLoading } = useAllOrders(page, PAGE_SIZE);
   const { t } = useLocale();
 
   if (isLoading) return <FullPageSpinner />;
 
-  if (!data?.content || data.content.length === 0) {
-    return (
-      <EmptyState
-        icon={Receipt}
-        title={t.salesAdmin.orders.empty}
-      />
-    );
+  const orders = data?.content ?? [];
+
+  if (orders.length === 0 && page === 0) {
+    return <EmptyState icon={Receipt} title={t.salesAdmin.orders.empty} />;
   }
 
   return (
@@ -35,7 +37,7 @@ export default function SalesOrdersPage() {
         <h1 className="text-2xl font-semibold">{t.salesAdmin.orders.title}</h1>
       </header>
       <div className="space-y-3">
-        {data.content.map((order) => (
+        {orders.map((order) => (
           <Card key={order.id}>
             <CardBody className="flex items-center justify-between">
               <div>
@@ -44,12 +46,19 @@ export default function SalesOrdersPage() {
               </div>
               <div className="flex items-center gap-4">
                 <span className="font-semibold">{formatCurrency(order.totalPrice)}</span>
-                <Badge tone={statusTone[order.status]}>{order.status}</Badge>
+                <Badge tone={statusTone[order.status]}>{t.buyer.orders.status[order.status]}</Badge>
               </div>
             </CardBody>
           </Card>
         ))}
       </div>
+      <Pagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        totalElements={data?.totalElements ?? 0}
+        totalPages={data?.totalPages ?? 1}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

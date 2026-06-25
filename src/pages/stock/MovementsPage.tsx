@@ -8,6 +8,7 @@ import { Input, Label, Select } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FullPageSpinner } from '@/components/ui/Spinner';
+import { Pagination } from '@/components/ui/Pagination';
 import { formatDate } from '@/lib/utils';
 import type { MovementType } from '@/types';
 import { useLocale } from '@/i18n/LocaleContext';
@@ -15,21 +16,24 @@ import type { Messages } from '@/i18n/messages.pt';
 
 const typeMeta: Record<
   MovementType,
-  { tone: 'success' | 'danger' | 'info'; icon: typeof ArrowDown; label: string; iconBg: string }
+  { tone: 'success' | 'danger' | 'info'; icon: typeof ArrowDown; iconBg: string }
 > = {
-  INBOUND: { tone: 'success', icon: ArrowDown, label: 'Entrada', iconBg: 'bg-success/10 text-success' },
-  OUTBOUND: { tone: 'danger', icon: ArrowUp, label: 'Saída', iconBg: 'bg-danger/10 text-danger' },
-  ADJUSTMENT: { tone: 'info', icon: SlidersHorizontal, label: 'Ajuste', iconBg: 'bg-accent-2/10 text-accent-2' },
+  INBOUND: { tone: 'success', icon: ArrowDown, iconBg: 'bg-success/10 text-success' },
+  OUTBOUND: { tone: 'danger', icon: ArrowUp, iconBg: 'bg-danger/10 text-danger' },
+  ADJUSTMENT: { tone: 'info', icon: SlidersHorizontal, iconBg: 'bg-accent-2/10 text-accent-2' },
 };
 
 function movementLabel(t: Messages, type: MovementType) {
   return t.stock.movements.type[type];
 }
 
+const PAGE_SIZE = 10;
+
 export default function MovementsPage() {
-  const { data: movements, isLoading } = useMovements();
-  const { data: products } = useStockProducts();
-  const { data: sectors } = useSectors();
+  const [page, setPage] = useState(0);
+  const { data, isLoading } = useMovements(page, PAGE_SIZE);
+  const { data: productsData } = useStockProducts();
+  const { data: sectorsData } = useSectors();
   const createMovement = useCreateMovement();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -40,6 +44,9 @@ export default function MovementsPage() {
     reason: '',
   });
   const { t } = useLocale();
+
+  const products = productsData?.content ?? [];
+  const sectors = sectorsData?.content ?? [];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,6 +63,8 @@ export default function MovementsPage() {
 
   if (isLoading) return <FullPageSpinner />;
 
+  const movements = data?.content ?? [];
+
   return (
     <div>
       <header className="mb-6 flex items-center justify-between">
@@ -71,36 +80,45 @@ export default function MovementsPage() {
         </Button>
       </header>
 
-      {!movements || movements.length === 0 ? (
-        <EmptyState icon={ArrowLeftRight} title={t.stock.movements.empty}  />
+      {movements.length === 0 && page === 0 ? (
+        <EmptyState icon={ArrowLeftRight} title={t.stock.movements.empty} />
       ) : (
-        <div className="space-y-2">
-          {movements.map((m) => {
-            const meta = typeMeta[m.type];
-            return (
-              <Card key={m.id}>
-                <CardBody className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${meta.iconBg}`}>
-                      <meta.icon className="h-4 w-4" />
+        <>
+          <div className="space-y-2">
+            {movements.map((m) => {
+              const meta = typeMeta[m.type];
+              return (
+                <Card key={m.id}>
+                  <CardBody className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${meta.iconBg}`}>
+                        <meta.icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{m.product.name}</p>
+                        <p className="text-sm text-text-dim">
+                          {m.sector.name} · {t.stock.movements.by} {m.user.username} · {formatDate(m.createdAt)}
+                        </p>
+                        {m.reason && <p className="text-xs text-text-dim">{m.reason}</p>}
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">{m.product.name}</p>
-                      <p className="text-sm text-text-dim">
-                        {m.sector.name} · por {m.user.username} · {formatDate(m.createdAt)}
-                      </p>
-                      {m.reason && <p className="text-xs text-text-dim">{m.reason}</p>}
+                    <div className="flex items-center gap-2">
+                      <Badge tone={meta.tone}>{movementLabel(t, m.type)}</Badge>
+                      <span className="font-semibold w-12 text-right">{m.quantity}</span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge tone={meta.tone}>{movementLabel(t, m.type)}</Badge>
-                    <span className="font-semibold w-12 text-right">{m.quantity}</span>
-                  </div>
-                </CardBody>
-              </Card>
-            );
-          })}
-        </div>
+                  </CardBody>
+                </Card>
+              );
+            })}
+          </div>
+          <Pagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            totalElements={data?.totalElements ?? 0}
+            totalPages={data?.totalPages ?? 1}
+            onPageChange={setPage}
+          />
+        </>
       )}
 
       <Modal open={open} onClose={() => setOpen(false)} title="Nova movimentação">
@@ -109,16 +127,16 @@ export default function MovementsPage() {
             <Label>{t.stock.movements.fieldProduct}</Label>
             <Select required value={form.productId} onChange={(e) => setForm({ ...form, productId: e.target.value })}>
               <option value="">{t.common.select}</option>
-              {products?.map((p) => (
+              {products.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </Select>
           </div>
           <div>
-            <Label>Setor</Label>
+            <Label>{t.stock.movements.fieldSector}</Label>
             <Select required value={form.sectorId} onChange={(e) => setForm({ ...form, sectorId: e.target.value })}>
               <option value="">{t.common.select}</option>
-              {sectors?.map((s) => (
+              {sectors.map((s) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </Select>

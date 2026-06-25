@@ -16,7 +16,11 @@ export const salesAuthApi = {
 };
 
 export const categoriesSalesApi = {
-  list: () => salesApi.get<PageResponse<CategorySalesDTO>>('/categories').then((r) => r.data),
+  list: (page = 0, size = 20) => 
+    salesApi
+      .get<{ content: CategorySalesDTO[]; totalPages: number; totalElements: number}>(     
+        '/categories' ,{ params: { page, size } })
+      .then((r) => r.data),
   create: (payload: { id: null; name: string; description?: string ; active : true }) =>
     salesApi.post<CategorySalesDTO>('/categories', payload).then((r) => r.data),
   update: (id: string, payload: { name: string; description?: string }) =>
@@ -48,8 +52,10 @@ export const productsSalesApi = {
 };
 
 export const ordersApi = {
-  myOrders: () => salesApi.get<PageResponse<OrderResponseDTO>>('/orders/my-orders').then((r) => r.data),
-  allOrders: () => salesApi.get<PageResponse<OrderResponseDTO>>('/orders').then((r) => r.data),
+  myOrders: (page = 0, size = 20) =>
+    salesApi.get<PageResponse<OrderResponseDTO>>('/orders/my-orders', { params: { page, size } }).then((r) => r.data),
+  allOrders: (page = 0, size = 20) =>
+    salesApi.get<PageResponse<OrderResponseDTO>>('/orders', { params: { page, size } }).then((r) => r.data),
   create: (payload: OrderRequestDTO) =>
     salesApi.post<OrderResponseDTO>('/orders', payload).then((r) => r.data),
   get: (id: string) => salesApi.get<PageResponse<OrderResponseDTO>>(`/orders/${id}`).then((r) => r.data),

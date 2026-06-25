@@ -10,6 +10,12 @@ const messages: Messages = {
     logout: 'Log out',
   },
 
+  pagination: {
+    showing: (from: number, to: number, total: number) => `Showing ${from}–${to} of ${total}`,
+    prev: 'Previous',
+    next: 'Next',
+  },
+
   toast: {
     productCreated: 'Product created successfully!',
     categoryCreated: 'Category created successfully!',

@@ -4,17 +4,17 @@ import { toast } from '@/store/toastStore';
 import { useLocale } from '@/i18n/LocaleContext';
 import type { OrderRequestDTO } from '@/types';
 
-export function useSalesProducts(page = 0) {
+export function useSalesProducts(page: number, size: number) {
   return useQuery({
-    queryKey: ['sales', 'products', page],
-    queryFn: () => productsSalesApi.list(page),
+    queryKey: ['sales', 'products', page, size],
+    queryFn: () => productsSalesApi.list(page, size),
   });
 }
 
-export function useSalesCategories() {
+export function useSalesCategories(page: number, size: number) {
   return useQuery({
-    queryKey: ['sales', 'categories'],
-    queryFn: categoriesSalesApi.list,
+    queryKey: ['sales', 'categories', page, size],
+    queryFn: ()=> categoriesSalesApi.list(page, size),
   });
 }
 
@@ -38,17 +38,17 @@ export function useCreateSalesProduct() {
   });
 }
 
-export function useMyOrders() {
+export function useMyOrders(page = 0, size = 20) {
   return useQuery({
-    queryKey: ['sales', 'orders', 'mine'],
-    queryFn: ordersApi.myOrders,
+    queryKey: ['sales', 'orders', 'mine', page, size],
+    queryFn: () => ordersApi.myOrders(page, size),
   });
 }
 
-export function useAllOrders() {
+export function useAllOrders(page = 0, size = 20) {
   return useQuery({
-    queryKey: ['sales', 'orders', 'mine'],
-    queryFn: ordersApi.allOrders,
+    queryKey: ['sales', 'orders', 'all', page, size],
+    queryFn: () => ordersApi.allOrders(page, size),
   });
 }
 

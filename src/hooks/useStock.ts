@@ -8,20 +8,20 @@ import {
 import { toast } from '@/store/toastStore';
 import { useLocale } from '@/i18n/LocaleContext';
 
-export function useStockProducts() {
-  return useQuery({ queryKey: ['stock', 'products'], queryFn: productsStockApi.list });
+export function useStockProducts(page = 0, size = 20) {
+  return useQuery({ queryKey: ['stock', 'products', page, size], queryFn: () => productsStockApi.list(page, size) });
 }
 
-export function useStockCategories() {
-  return useQuery({ queryKey: ['stock', 'categories'], queryFn: categoriesStockApi.list });
+export function useStockCategories(page = 0, size = 20) {
+  return useQuery({ queryKey: ['stock', 'categories', page, size], queryFn: () => categoriesStockApi.list(page, size) });
 }
 
-export function useSectors() {
-  return useQuery({ queryKey: ['stock', 'sectors'], queryFn: sectorsApi.list });
+export function useSectors(page = 0, size = 20) {
+  return useQuery({ queryKey: ['stock', 'sectors', page, size], queryFn: () => sectorsApi.list(page, size) });
 }
 
-export function useMovements() {
-  return useQuery({ queryKey: ['stock', 'movements'], queryFn: movementsApi.list });
+export function useMovements(page = 0, size = 20) {
+  return useQuery({ queryKey: ['stock', 'movements', page, size], queryFn: () => movementsApi.list(page, size) });
 }
 
 export function useCreateStockCategory() {
