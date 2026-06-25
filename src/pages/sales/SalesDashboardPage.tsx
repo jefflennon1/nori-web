@@ -1,7 +1,7 @@
 import { Boxes, Tags, Receipt, TrendingUp } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { useSalesProducts, useSalesCategories } from '@/hooks/useSales';
-import { useMyOrders } from '@/hooks/useSales';
+import { useAllOrders } from '@/hooks/useSales';
 import { formatCurrency } from '@/lib/utils';
 import { useLocale } from '@/i18n/LocaleContext';
 
@@ -32,7 +32,7 @@ function StatCard({
 export default function SalesDashboardPage() {
   const { data: productsPage } = useSalesProducts();
   const { data: categories } = useSalesCategories();
-  const { data: orders } = useMyOrders();
+  const { data: orders } = useAllOrders();
   const { t } = useLocale();
 
   const revenue =
@@ -47,7 +47,7 @@ export default function SalesDashboardPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Boxes} label={t.salesAdmin.dashboard.statProducts}  value={productsPage?.totalElements ?? 0} />
-        <StatCard icon={Tags} label={t.salesAdmin.dashboard.statCategories} value={categories?.length ?? 0} />
+        <StatCard icon={Tags} label={t.salesAdmin.dashboard.statCategories} value={categories?.content.length ?? 0} />
         <StatCard icon={Receipt} label={t.salesAdmin.dashboard.statOrders}  value={orders?.content.length ?? 0} />
         <StatCard icon={TrendingUp} label={t.salesAdmin.dashboard.statRevenue} value={formatCurrency(revenue)} />
       </div>

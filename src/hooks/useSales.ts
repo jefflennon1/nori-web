@@ -45,6 +45,13 @@ export function useMyOrders() {
   });
 }
 
+export function useAllOrders() {
+  return useQuery({
+    queryKey: ['sales', 'orders', 'mine'],
+    queryFn: ordersApi.allOrders,
+  });
+}
+
 export function useOrder(id: string | undefined) {
   return useQuery({
     queryKey: ['sales', 'orders', id],

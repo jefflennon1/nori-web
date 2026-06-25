@@ -49,6 +49,7 @@ export const productsSalesApi = {
 
 export const ordersApi = {
   myOrders: () => salesApi.get<PageResponse<OrderResponseDTO>>('/orders/my-orders').then((r) => r.data),
+  allOrders: () => salesApi.get<PageResponse<OrderResponseDTO>>('/orders').then((r) => r.data),
   create: (payload: OrderRequestDTO) =>
     salesApi.post<OrderResponseDTO>('/orders', payload).then((r) => r.data),
   get: (id: string) => salesApi.get<PageResponse<OrderResponseDTO>>(`/orders/${id}`).then((r) => r.data),
